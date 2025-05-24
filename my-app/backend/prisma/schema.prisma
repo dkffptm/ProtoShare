@@ -8,47 +8,35 @@ datasource db {
 }
 
 model User {
-<<<<<<< HEAD
-  id           Int              @id @default(autoincrement())
-  name         String
-  email        String           @unique
-  password     String
-  role         String           @default("USER")
+  id          Int              @id @default(autoincrement())
+  name        String
+  email       String           @unique
+  password    String
+  role        String           @default("USER")
+
+
   projects     Project[]        @relation("OwnerProjects")
+
+
   memberships  ProjectMember[]  @relation("UserMemberships")
 }
 
 model Project {
-  id           Int              @id @default(autoincrement())
-  title        String
-  description  String
-  userId       Int
-  user         User             @relation("OwnerProjects", fields: [userId], references: [id])
-  members      ProjectMember[]
-}
-
-model ProjectMember {
-  id           Int              @id @default(autoincrement())
-  projectId    Int
-  userId       Int
-  project      Project          @relation(fields: [projectId], references: [id])
-  user         User             @relation("UserMemberships", fields: [userId], references: [id])
-
-  @@unique([projectId, userId])
-=======
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String  @unique
-  password String
-  role     String  @default("USER")
-  projects Project[]
-}
-
-model Project {
-  id          Int    @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   title       String
   description String
   userId      Int
-  user        User   @relation(fields: [userId], references: [id])
->>>>>>> 4af54c7db552616536cfa70fa60c6f50bc626333
+  user        User             @relation("OwnerProjects", fields: [userId], references: [id])
+  members     ProjectMember[]
+}
+
+model ProjectMember {
+  id        Int      @id @default(autoincrement())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId Int
+
+  user      User     @relation("UserMemberships", fields: [userId], references: [id])
+  userId    Int
+
+  @@unique([projectId, userId])
 }
