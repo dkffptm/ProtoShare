@@ -11,14 +11,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "인증 토큰 없음" }, { status: 401 });
     }
 
-    // ✅ userId 포함된 JWT로 디코딩
+    // userId 포함된 JWT로 디코딩
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
 
     const { projectId, email } = await req.json();
 
-    // ✅ 프로젝트의 소유자인지 확인
+    // 프로젝트의 소유자인지 확인
     const project = await prisma.project.findUnique({
       where: { id: projectId },
     });
