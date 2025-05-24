@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ JWT에 반드시 userId 포함
+    // JWT에 반드시 userId 포함
     const token = jwt.sign(
       {
         userId: user.id,
