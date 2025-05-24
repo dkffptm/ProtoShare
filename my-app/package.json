@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@babel/traverse": "^7.27.1",
     "@prisma/client": "^6.8.1",
     "lucide-react": "^0.488.0",
@@ -27,5 +28,24 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.1",
     "vite": "^6.2.0"
+=======
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.1",
+    "@prisma/client": "^6.8.1",
+    "lucide-react": "^0.488.0",
+    "prisma": "^6.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "vite": "^6.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.5.3",
+    "autoprefixer": "^10.4.21",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4"
+>>>>>>> 4af54c7db552616536cfa70fa60c6f50bc626333
   }
 }
