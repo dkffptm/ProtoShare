@@ -11,7 +11,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "인증 토큰 없음" }, { status: 401 });
     }
 
-    // userId 포함된 JWT로 디코딩
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: number;
     };
@@ -37,9 +36,10 @@ export async function POST(req: Request) {
     }
 
     // 중복 초대 방지
-    const existing = await prisma.projectMember.findUnique({
+    const existing = await prisma.projectMember.findFirst({
       where: {
-        projectId_userId: { projectId, userId: userToInvite.id },
+        projectId,
+        userId: userToInvite.id,
       },
     });
     if (existing) {
@@ -54,6 +54,14 @@ export async function POST(req: Request) {
       data: {
         projectId,
         userId: userToInvite.id,
+      },
+    });
+
+    // 초대한 인원 수 증가
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        invitedCount: { increment: 1 },
       },
     });
 

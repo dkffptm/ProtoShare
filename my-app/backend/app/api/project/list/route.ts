@@ -1,7 +1,5 @@
-// backend/app/api/project/list/route.ts
-
 import { NextResponse } from "next/server";
-import prisma from "../../../../lib/prisma";
+import prisma from "@/lib/prisma";
 import jwt from "jsonwebtoken";
 
 export async function GET(req: Request) {
@@ -13,24 +11,35 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "인증 토큰 없음" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: number;
-    };
-
-    console.log("🔑 userId:", decoded.userId);
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const userId = decoded.userId;
 
     const projects = await prisma.project.findMany({
       where: {
-        userId: decoded.userId,
+        OR: [
+          { userId: userId }, // 자신이 만든 프로젝트
+          {
+            members: {
+              some: {
+                userId: userId, // 초대받은 프로젝트
+              },
+            },
+          },
+        ],
       },
-      orderBy: {
-        id: "asc",
+      include: {
+        user: true, // 생성자 정보 포함
+        members: {
+          include: {
+            user: true, // 초대된 유저 정보도 포함
+          },
+        },
       },
     });
 
     return NextResponse.json(projects);
-  } catch (err) {
-    console.error("❌ 프로젝트 목록 불러오기 오류:", err);
-    return NextResponse.json({ error: "서버 오류" }, { status: 500 });
+  } catch (error) {
+    console.error("프로젝트 조회 실패:", error);
+    return NextResponse.json({ error: "서버 에러" }, { status: 500 });
   }
 }

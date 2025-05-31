@@ -27,7 +27,7 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
-        // role 생략 → 기본값 "USER" 자동 적용됨
+        role: "USER",
       },
     });
 
