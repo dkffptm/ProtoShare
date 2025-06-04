@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-// 재업로드
+import { useNavigate } from "react-router-dom";
+
 const CreateProjectPage = () => {
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -12,6 +13,12 @@ const CreateProjectPage = () => {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [myUserId, setMyUserId] = useState(null);
   const dropdownRef = useRef();
+  const [inviteCount, setInviteCount] = useState(0);
+  const [hasNewInvite, setHasNewInvite] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  
 
   const fetchProjects = async () => {
     try {
@@ -40,6 +47,20 @@ const CreateProjectPage = () => {
     fetchProjects();
   }, []);
 
+    useEffect(() => {
+    if (myUserId === null) return;
+    const inviteProjects = projects.filter((p) => p.userId !== myUserId);
+    const current = inviteProjects.length;
+    setInviteCount(current);
+    const last = parseInt(localStorage.getItem("lastInviteCount")) || 0;
+    if (current > last) {
+      setHasNewInvite(true);
+      localStorage.setItem("lastInviteCount", current.toString());
+    }
+  }, [projects, myUserId]);
+
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -121,8 +142,19 @@ const CreateProjectPage = () => {
     }
   };
 
+
+  const handleNoticeClick = () => {
+    setHasNewInvite(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div className="w-screen h-screen text-white flex flex-col bg-[#1e1e1e]">
+      {/* 상단 헤더 */}
       <div className="bg-[#202124] px-8 py-6">
         <div className="flex justify-between items-center mb-4">
           <div className="text-2xl font-roboto">
@@ -131,15 +163,33 @@ const CreateProjectPage = () => {
             <span className="text-blue-400 text-4xl">S</span>
           </div>
           <div className="flex gap-4 items-center">
-            <img
-              src="/notice-icon.png"
-              alt="공지"
-              className="w-12 h-12 cursor-pointer"
-            />
-            <img
-              src="/profile-icon.png"
-              className="w-12 h-12 rounded-full cursor-pointer"
-            />
+           <div className="relative" onClick={handleNoticeClick}>
+              <img
+                src="/notice-icon.png"
+                alt="공지"
+                className="w-12 h-12 cursor-pointer"
+              />
+              {hasNewInvite && (
+                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full" />
+              )}
+            </div>
+            <div className="relative">
+              <img
+                src="/profile-icon.png"
+                className="w-12 h-12 rounded-full cursor-pointer"
+                onClick={() => setProfileOpen(!profileOpen)}
+              />
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 bg-[#2a2a2a] border border-gray-700 rounded-md shadow-lg z-10">
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 hover:bg-[#3a3a3a]"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-6">
@@ -152,6 +202,7 @@ const CreateProjectPage = () => {
 
       <div className="border-b border-gray-600" />
 
+      {/* 검색바 + 신규 프로젝트 버튼 */}
       <div className="bg-[#1e1e1e] px-10 py-10 flex items-start justify-center gap-[32rem]">
         <div className="flex flex-col items-start">
           <input
@@ -185,6 +236,7 @@ const CreateProjectPage = () => {
         </div>
       </div>
 
+      {/* 새 프로젝트 모달 */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white w-[32rem] rounded-xl p-6 shadow-lg relative text-black">
@@ -233,12 +285,14 @@ const CreateProjectPage = () => {
         </div>
       )}
 
+      {/* 프로젝트 카드 리스트 */}
       <div className="flex flex-wrap justify-center gap-6 mt-8">
         {projects.map((p) => (
           <div
             key={p.id}
             className="relative bg-white text-black w-[24rem] rounded-xl shadow-md p-4"
           >
+            {/* 상단 우측: ⋮ 메뉴만 */}
             {p.userId === myUserId && (
               <div className="absolute top-3 right-3 z-10">
                 <button
@@ -250,8 +304,9 @@ const CreateProjectPage = () => {
                 >
                   &#58;
                 </button>
+
                 {menuOpen === p.id && (
-                  <div className="absolute right-0 mt-2 w-32 bg-[#2a2a2a] text-white rounded shadow z-10">
+                  <div className="absolute right-0 mt-6 w-32 bg-[#2a2a2a] text-white rounded shadow z-10">
                     <button
                       onClick={() => {
                         setInviteModalOpen(true);
@@ -273,6 +328,7 @@ const CreateProjectPage = () => {
               </div>
             )}
 
+            {/* 프로젝트 기본 정보: 아이콘 + 타이틀 */}
             <div className="flex items-center gap-4 mb-4">
               <div className="w-10 h-10 bg-yellow-400 rounded-md flex items-center justify-center text-white font-bold">
                 ■
@@ -285,11 +341,15 @@ const CreateProjectPage = () => {
               {p.description}
             </div>
             <div className="border-t border-gray-300 my-2" />
+
+            {/* 하단: 오늘 마감인 작업 + 사람 아이콘(멤버 수) */}
             <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
               <span>
                 오늘이 마감인 작업{" "}
                 <span className="text-blue-500 font-semibold">0</span>건
               </span>
+
+              {/* 원래 “팀원 보기” 위치에 아이콘+숫자 배치 */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -297,11 +357,20 @@ const CreateProjectPage = () => {
                     selectedProjectId === p.id ? null : p.id
                   );
                 }}
-                className="text-blue-400 underline text-sm"
+                className="flex items-center"
               >
-                팀원 보기 ({p.invitedCount ?? p.members.length}명)
+                <img
+                  src="/person-icon.png"
+                  alt="팀원 수"
+                  className="w-5 h-5"
+                />
+                <span className="ml-1 text-sm text-gray-600">
+                  {p.members.length}
+                </span>
               </button>
             </div>
+
+            {/* 클릭된 프로젝트에 대해서만 멤버 리스트 표시 */}
             {selectedProjectId === p.id && (
               <div className="mt-2 text-xs text-gray-800 bg-gray-100 rounded-md p-3 border">
                 {p.members.length > 0 ? (
@@ -324,6 +393,7 @@ const CreateProjectPage = () => {
         ))}
       </div>
 
+      {/* 팀원 초대 모달 */}
       {inviteModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white text-black p-6 rounded-lg shadow w-[24rem] relative">
