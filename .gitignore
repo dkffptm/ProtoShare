@@ -1,8 +1,19 @@
-node_modules/
+# node_modules (모든 위치)
+**/node_modules/
+
+# 빌드 결과물
 .next/
 dist/
+out/
 build/
+storybook-static/
+
+# 캐시
+.cache/
+.turbo/
+.temp/
+
+# 기타
+*.log
 .env
 .DS_Store
-*.log
-npm-debug.log
