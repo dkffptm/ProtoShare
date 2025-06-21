@@ -1,0 +1,6 @@
+{
+  "/api/project/list/route": "app/api/project/list/route.js",
+  "/api/project/delete/route": "app/api/project/delete/route.js",
+  "/api/project/create/route": "app/api/project/create/route.js",
+  "/api/project/invite/route": "app/api/project/invite/route.js"
+}

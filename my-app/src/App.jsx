@@ -38,7 +38,6 @@ function App() {
       <Route path="/" element={<Navigate to="/signup" />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
-
       <Route
         path="/projects"
         element={
@@ -75,7 +74,6 @@ function App() {
           </Layout>
         }
       />
-
       <Route path="*" element={<h1>404 Not Found</h1>} />
     </Routes>
   );

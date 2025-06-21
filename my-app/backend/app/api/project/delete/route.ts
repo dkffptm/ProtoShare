@@ -22,12 +22,12 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "삭제 권한 없음" }, { status: 403 });
     }
 
-    // 관련된 members 먼저 삭제
+    // 1. 관련된 members 먼저 삭제
     await prisma.projectMember.deleteMany({
       where: { projectId: id },
     });
 
-    // 그 다음 프로젝트 삭제
+    // 2. 그 다음 프로젝트 삭제
     await prisma.project.delete({
       where: { id },
     });

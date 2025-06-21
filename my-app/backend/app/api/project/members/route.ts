@@ -27,3 +27,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }
 }
+

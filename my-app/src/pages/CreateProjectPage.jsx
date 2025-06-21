@@ -12,8 +12,10 @@ const CreateProjectPage = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [myUserId, setMyUserId] = useState(null);
-
   const dropdownRef = useRef();
+  const [inviteCount, setInviteCount] = useState(0);
+  const [hasNewInvite, setHasNewInvite] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -41,13 +43,11 @@ const CreateProjectPage = () => {
     fetchProjects();
   }, []);
 
-  // 🔍 프로젝트 + 작업 콘솔 확인용 (개발 중 디버깅)
   useEffect(() => {
     projects.forEach((p) => {
       console.log("프로젝트:", p.title, "작업들:", p.tasks);
     });
   }, [projects]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -59,6 +59,7 @@ const CreateProjectPage = () => {
         },
         body: JSON.stringify({ title: projectName, description }),
       });
+
       if (res.ok) {
         alert("프로젝트 생성 완료");
         setShowModal(false);
@@ -85,6 +86,7 @@ const CreateProjectPage = () => {
         },
         body: JSON.stringify({ id }),
       });
+
       if (res.ok) {
         alert("삭제 완료");
         fetchProjects();
@@ -105,6 +107,7 @@ const CreateProjectPage = () => {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
+
         body: JSON.stringify({ projectId: selectedProjectId, email: inviteEmail }),
       });
       if (res.ok) {
@@ -159,7 +162,6 @@ const CreateProjectPage = () => {
           )}
         </div>
       </div>
-
       <div className="flex flex-wrap justify-center gap-6 mt-8 px-4">
         {projects.map((p) => {
           const todayDueCount = p.tasks?.filter(
